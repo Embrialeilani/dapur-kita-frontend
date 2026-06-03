@@ -1802,7 +1802,7 @@ html, body {
 .hero-search .btn { border-radius: 50px; white-space: nowrap; }
 .hero-own-right {
   position: relative;
-  background: linear-gradient(135deg, #2bbccf 0%, #1ca5b8 100%);
+  background:#f4fafb;
   border-radius: 40% 40% 45% 45%;
   min-height: 380px;
   display: flex;
