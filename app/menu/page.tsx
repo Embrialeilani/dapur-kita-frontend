@@ -1,6 +1,7 @@
 'use client';
+
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -24,7 +25,7 @@ interface Category {
   name: string;
 }
 
-export default function MenuPage() {
+function MenuContent() {
   const [packages, setPackages] = useState<Pkg[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filterCat, setFilterCat] = useState<number | null>(null);
@@ -44,10 +45,14 @@ export default function MenuPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = packages.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.description?.toLowerCase().includes(search.toLowerCase())
-  );
+  // Filter berdasarkan kategori DAN pencarian
+  const filtered = packages.filter((p) => {
+    const matchSearch =
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.description?.toLowerCase().includes(search.toLowerCase());
+    const matchCat = filterCat === null || p.categoryId === filterCat;
+    return matchSearch && matchCat;
+  });
 
   return (
     <>
@@ -59,6 +64,19 @@ export default function MenuPage() {
         </div>
 
         <div className="page-content">
+          {/* Kotak pencarian */}
+          <div style={{ marginBottom: 20 }}>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="🔍 Cari paket catering..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={{ maxWidth: 400 }}
+            />
+          </div>
+
+          {/* Filter kategori */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
             <button
               className={`btn btn-sm ${filterCat === null ? 'btn-primary' : 'btn-outline'}`}
@@ -88,7 +106,7 @@ export default function MenuPage() {
           ) : filtered.length === 0 ? (
             <div className="empty-state">
               <div className="empty-state-icon">🍱</div>
-              <h3>Belum ada paket tersedia</h3>
+              <h3>{search ? `Tidak ada paket cocok dengan "${search}"` : 'Belum ada paket tersedia'}</h3>
             </div>
           ) : (
             <div className="packages-grid">
@@ -115,5 +133,13 @@ export default function MenuPage() {
       </div>
       <Footer />
     </>
+  );
+}
+
+export default function MenuPage() {
+  return (
+    <Suspense fallback={<div className="loading"><span className="spinner"></span>Memuat...</div>}>
+      <MenuContent />
+    </Suspense>
   );
 }
