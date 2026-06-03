@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import { api } from '@/lib/api';
 import { formatRupiah } from '@/lib/helpers';
 import { useScrollReveal, useCounterAnimation } from '@/hooks/useScrollReveal';
-import Portfolio from '@/components/portofolio';
+import Portfolio from '@/components/Portofolio';
 
 const WA_NUMBER = '6281234567890';
 const WA_MSG = encodeURIComponent('Halo Dapur Kita! Saya tertarik dengan layanan catering. Boleh info lebih lanjut?');
