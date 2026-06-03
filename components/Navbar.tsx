@@ -16,7 +16,8 @@ export default function Navbar({ admin = false }: NavbarProps) {
   const [loggedIn, setLoggedIn] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false); // untuk hamburger
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
   const pathname = usePathname();
 
   useEffect(() => {
@@ -38,9 +39,32 @@ export default function Navbar({ admin = false }: NavbarProps) {
     };
   }, [pathname]);
 
-  // Tutup menu setiap pindah halaman
   useEffect(() => {
     setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (pathname !== '/') {
+      setActiveSection('');
+      return;
+    }
+    const sections = ['portfolio', 'tentang', 'lokasi'];
+    const handleScroll = () => {
+      let current = '';
+      for (const id of sections) {
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 150 && rect.bottom >= 150) {
+            current = id;
+          }
+        }
+      }
+      setActiveSection(current);
+    };
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
 
   const handleLogout = () => {
@@ -76,7 +100,6 @@ export default function Navbar({ admin = false }: NavbarProps) {
             <small style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 500, marginLeft: 6 }}>ADMIN</small>
           </Link>
 
-          {/* Tombol hamburger (muncul di HP) */}
           <button className="navbar-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
             {menuOpen ? '✕' : '☰'}
           </button>
@@ -114,18 +137,17 @@ export default function Navbar({ admin = false }: NavbarProps) {
           </span>
         </Link>
 
-        {/* Tombol hamburger (muncul di HP) */}
         <button className="navbar-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
           {menuOpen ? '✕' : '☰'}
         </button>
 
         <div className={`navbar-collapse${menuOpen ? ' open' : ''}`}>
           <ul className="navbar-menu">
-            <li><Link href="/" className={pathname === '/' ? 'active' : ''}>HOME</Link></li>
+            <li><Link href="/" className={pathname === '/' && activeSection === '' ? 'active' : ''}>HOME</Link></li>
             <li><Link href="/menu" className={pathname?.startsWith('/menu') ? 'active' : ''}>PAKET</Link></li>
-            <li><Link href="/#portfolio">PORTFOLIO</Link></li>
-            <li><Link href="/#tentang">TENTANG</Link></li>
-            <li><Link href="/#lokasi">LOKASI</Link></li>
+            <li><Link href="/#portfolio" className={activeSection === 'portfolio' ? 'active' : ''}>PORTFOLIO</Link></li>
+            <li><Link href="/#tentang" className={activeSection === 'tentang' ? 'active' : ''}>TENTANG</Link></li>
+            <li><Link href="/#lokasi" className={activeSection === 'lokasi' ? 'active' : ''}>LOKASI</Link></li>
             {loggedIn && <li><Link href="/orders" className={pathname === '/orders' ? 'active' : ''}>PESANAN</Link></li>}
             {user?.role === 'ADMIN' && <li><Link href="/admin">ADMIN</Link></li>}
           </ul>
